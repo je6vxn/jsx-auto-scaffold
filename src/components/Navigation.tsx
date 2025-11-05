@@ -1,5 +1,6 @@
-import { ShoppingCart, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Cart } from "@/components/Cart";
 
 export const Navigation = ({ onLogout }: { onLogout: () => void }) => {
   return (
@@ -27,10 +28,7 @@ export const Navigation = ({ onLogout }: { onLogout: () => void }) => {
             </a>
           </nav>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-muted px-4 py-2 rounded-full">
-              <ShoppingCart className="w-5 h-5 text-primary" />
-              <span className="text-primary font-semibold">Free Delivery</span>
-            </div>
+            <Cart />
             <Button
               onClick={onLogout}
               variant="outline"

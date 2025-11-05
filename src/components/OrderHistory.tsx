@@ -5,9 +5,12 @@ import { Order } from "@/types/order";
 import { Clock, Package, MapPin, Phone, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export const OrderHistory = () => {
-  const { data: orders, isLoading } = useQuery({
+  const { toast } = useToast();
+  const { data: orders, isLoading, refetch } = useQuery({
     queryKey: ['orders'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -19,6 +22,30 @@ export const OrderHistory = () => {
       return data;
     }
   });
+
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: "cancelled" })
+        .eq("id", orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Order Cancelled",
+        description: "Your order has been cancelled successfully.",
+      });
+
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to cancel order. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return <div className="text-center py-8">Loading orders...</div>;
@@ -40,7 +67,7 @@ export const OrderHistory = () => {
           <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Order #{order.id.slice(0, 8)}</CardTitle>
-              <Badge variant={order.status === 'pending' ? 'secondary' : 'default'}>
+              <Badge variant={order.status === 'pending' ? 'secondary' : order.status === 'cancelled' ? 'destructive' : 'default'}>
                 {order.status}
               </Badge>
             </div>
@@ -86,6 +113,16 @@ export const OrderHistory = () => {
                 </div>
               </div>
             </div>
+            {order.status === "pending" && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleCancelOrder(order.id)}
+                className="w-full mt-4"
+              >
+                Cancel Order
+              </Button>
+            )}
           </CardContent>
         </Card>
       ))}

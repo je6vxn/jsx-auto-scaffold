@@ -68,7 +68,7 @@ const Index = () => {
     { 
       id: 3, 
       name: 'Mandis', 
-      image: 'https://images.unsplash.com/photo-1633945274605-562d9e88008c?w=600',
+      image: new URL('@/assets/mandi-dish.jpg', import.meta.url).href,
       description: 'Traditional Arabian rice dish with roasted meat',
       price: 300
     }
