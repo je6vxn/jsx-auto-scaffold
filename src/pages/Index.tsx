@@ -3,12 +3,15 @@ import { Header } from "@/components/Header";
 import { Navigation } from "@/components/Navigation";
 import { MenuItem } from "@/components/MenuItem";
 import { OrderForm } from "@/components/OrderForm";
+import { OrderHistory } from "@/components/OrderHistory";
 import { Footer } from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { FoodItem } from "@/types/order";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { toast } = useToast();
+  const [showOrders, setShowOrders] = useState(false);
 
   const foodItems: FoodItem[] = [
     { 
@@ -76,6 +79,31 @@ const Index = () => {
 
         {/* Order Form Section */}
         <OrderForm foodItems={foodItems} />
+
+        {/* Order History Section */}
+        <section className="mt-16">
+          <div className="text-center mb-8">
+            <Button 
+              onClick={() => setShowOrders(!showOrders)}
+              variant="outline"
+              size="lg"
+              className="font-semibold"
+            >
+              {showOrders ? "Hide Order History" : "View Order History"}
+            </Button>
+          </div>
+          
+          {showOrders && (
+            <div>
+              <div className="text-center mb-10">
+                <h2 className="text-4xl font-bold text-foreground mb-3">Order History</h2>
+                <div className="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full"></div>
+                <p className="text-muted-foreground mt-4">Track all your previous orders</p>
+              </div>
+              <OrderHistory />
+            </div>
+          )}
+        </section>
       </main>
 
       <Footer />
