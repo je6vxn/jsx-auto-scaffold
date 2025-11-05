@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Navigation } from "@/components/Navigation";
 import { MenuItem } from "@/components/MenuItem";
@@ -8,10 +10,45 @@ import { Footer } from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { FoodItem } from "@/types/order";
 import { Button } from "@/components/ui/button";
+import { User } from "@supabase/supabase-js";
 
 const Index = () => {
   const { toast } = useToast();
   const [showOrders, setShowOrders] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
+      setUser(session.user);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
+  if (!user) {
+    return null;
+  }
 
   const foodItems: FoodItem[] = [
     { 
@@ -53,7 +90,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <Header />
-      <Navigation />
+      <Navigation onLogout={handleLogout} />
 
       <main className="container mx-auto px-4 py-12">
         {/* Menu Section */}
